@@ -10,7 +10,7 @@ from mocksql.synthesizer import DataSynthesizer
 
 @pytest.fixture
 def config():
-    return MockSQLConfig(default_rows_per_table=50)
+    return MockSQLConfig(default_rows_per_table=50, max_sandbox_rows_per_table=50)
 
 
 @pytest.fixture
@@ -184,3 +184,31 @@ class TestDataSynthesizer:
         # Values should be within histogram range
         assert min(prices) >= 10.0
         assert max(prices) <= 1000.0
+
+    def test_row_count_is_capped_for_large_ndv(self):
+        config = MockSQLConfig(
+            default_rows_per_table=100,
+            ndv_multiplier=10,
+            max_sandbox_rows_per_table=100,
+        )
+        synthesizer = DataSynthesizer(config)
+
+        tables_info = {
+            "lineitem": TableInfo(
+                name="lineitem",
+                row_count=59_986_052,
+                primary_keys=["l_orderkey"],
+                columns=[
+                    ColumnInfo(
+                        name="l_orderkey",
+                        data_type="int4",
+                        is_primary_key=True,
+                        n_distinct=5_000_000,
+                    ),
+                    ColumnInfo(name="l_quantity", data_type="numeric"),
+                ],
+            ),
+        }
+
+        data = synthesizer.synthesize(tables_info)
+        assert len(data["lineitem"]) == 100
