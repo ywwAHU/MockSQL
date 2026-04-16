@@ -94,12 +94,18 @@ class DataSynthesizer:
         return order
 
     def _compute_row_count(self, info: TableInfo) -> int:
-        """Determine how many rows to generate: max(default, ndv_multiplier * NDV_max)."""
+        """Determine how many rows to generate for the sandbox.
+
+        Production NDV can be in the millions on benchmark-scale databases.
+        Cap the sandbox size so semantic validation stays lightweight and the
+        synthetic execution path remains bounded.
+        """
         ndv_max = info.ndv_max
-        return max(
+        target_rows = max(
             self._config.default_rows_per_table,
             self._config.ndv_multiplier * ndv_max,
         )
+        return min(target_rows, self._config.max_sandbox_rows_per_table)
 
     def _generate_table_data(
         self,
