@@ -19,7 +19,8 @@ class MockSQLConfig:
     # --- Exec Channel ---
     sandbox_engine: str = "duckdb"  # "duckdb" or "sqlite"
     default_rows_per_table: int = 100
-    ndv_multiplier: int = 10  # rows = max(default_rows, ndv_multiplier * NDV_max)
+    ndv_multiplier: int = 10  # target rows before capping by max_sandbox_rows_per_table
+    max_sandbox_rows_per_table: int = 100
 
     # --- Metadata cache ---
     metadata_cache_ttl_seconds: int = 300  # 5 minutes
