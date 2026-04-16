@@ -1,0 +1,68 @@
+# MockSQL Configuration
+# Copy this file to configs/config.yaml and modify as needed
+
+# Production database connection
+production:
+  dsn: "postgresql://postgres:postgres@localhost:5432/mocksql_bench"
+
+# Plan Channel settings
+plan_channel:
+  enabled: true
+  row_explosion_threshold: 1000000
+  full_scan_row_threshold: 100000
+  total_cost_threshold: 10000.0
+
+# Exec Channel settings
+exec_channel:
+  enabled: true
+  sandbox_engine: "duckdb"
+  default_rows_per_table: 100
+  ndv_multiplier: 10
+
+# Metadata cache
+cache:
+  ttl_seconds: 300  # 5 minutes
+
+# Retry settings
+retry:
+  max_retries: 3
+
+# LLM configurations for benchmarking
+llm:
+  # OpenAI GPT-4o
+  - name: "GPT-4o"
+    provider: "openai"
+    model: "gpt-4o"
+    api_key: "${OPENAI_API_KEY}"
+
+  # Anthropic Claude Sonnet 4
+  - name: "Claude-Sonnet-4"
+    provider: "anthropic"
+    model: "claude-sonnet-4-20250514"
+    api_key: "${ANTHROPIC_API_KEY}"
+
+  # DeepSeek-V3
+  - name: "DeepSeek-V3"
+    provider: "deepseek"
+    model: "deepseek-chat"
+    api_key: "${DEEPSEEK_API_KEY}"
+    base_url: "https://api.deepseek.com/v1"
+
+  # Qwen2.5-72B (via DashScope or vLLM)
+  - name: "Qwen2.5-72B"
+    provider: "qwen"
+    model: "qwen2.5-72b-instruct"
+    api_key: "${QWEN_API_KEY}"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+# Benchmark datasets
+datasets:
+  spider:
+    path: "./data/spider"
+    url: "https://yale-lily.github.io/spider"
+  bird:
+    path: "./data/bird"
+    url: "https://bird-bench.github.io/"
+  tpch:
+    scale_factor: 10
+    dbgen_path: "./dbgen"
